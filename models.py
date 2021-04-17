@@ -2,23 +2,22 @@
 
 import tensorflow as tf
 import numpy as np
-import hyperparameters as hp
 from tensorflow.keras.layers import Layer, Conv2D, MaxPool2D, UpSampling2D
-from tensorflow.keras.models import Model
 
+import hyperparameters as hp
 
-class AdaIn(Layer):
+class AdaIN(Layer):
     def __init__(self, epsilon=hp.epsilon, alpha=hp.alpha):
         self.epsilon = epsilon
         self.alpha = alpha
-        super(AdaIn, self).__init__()
+        super(AdaIN, self).__init__()
 
     def call(self, content_features, style_features):
         content_mean, content_variance = tf.nn.moments(
-            content_features, axes=[1, 2], keep_dims=True
+            content_features, axes=[1, 2], keepdims=True
         )
         style_mean, style_variance = tf.nn.moments(
-            style_features, axes=[1, 2], keep_dims=True
+            style_features, axes=[1, 2], keepdims=True
         )
         content_std = tf.math.sqrt(content_variance+self.epsilon)
         style_std = tf.math.sqrt(style_variance+self.epsilon)
@@ -39,13 +38,14 @@ class encoder(tf.keras.Model):
         self.vgg19 = tf.keras.applications.VGG19(
             include_top=False, weights="imagenet")
 
+        self.vgg19.trainable = False
         outputs = [self.vgg19.get_layer(name).output for name in layer_names]
 
         self.vgg19_encoder = tf.keras.Model(
             inputs=self.vgg19.input, outputs=outputs
         )
 
-        self.vgg19_encoder.trainable = False
+
 
     def call(self, x):
         return self.vgg19_encoder(x)
@@ -76,21 +76,18 @@ class decoder(tf.keras.Model):
     def call(self, x):
         return self.vgg19_decoder(x)
 
-    # def loss_fn(self, content_loss, style_loss):
-    #     return content_loss + hp.c_lambda * style_loss
 
 
 class AdaIN_NST(tf.keras.Model):
-    def __init__(self, epsilon=hp.epsilon, alpha=hp.alpha, s_lambda=hp.s_lambda):
-        super(AdaIn_NST, self).__init__()
+    def __init__(self, epsilon=hp.epsilon, alpha=hp.alpha, s_lambda=hp.s_lambda, lr=hp.learning_rate):
+        super(AdaIN_NST, self).__init__()
         self.epsilon = epsilon
         self.alpha = alpha
         self.s_lambda = s_lambda
         self.enc = encoder(['block1_conv1','block2_conv1','block3_conv1','block4_conv1'])
         self.adain = AdaIN(epsilon, alpha)
         self.dec = decoder()
-        self.optimizer = tf.keras.optimizers.Adam(1e-2)
-        
+        self.optimizer = tf.keras.optimizers.Adam(lr)
 
     def call(self, content, style):
         enc_content = self.enc(content)
@@ -116,6 +113,3 @@ class AdaIN_NST(tf.keras.Model):
             style_loss_list.append(layer_loss)
         style_loss = tf.reduce_sum(style_loss_list)
         return content_loss+self.s_lambda*style_loss
-    # def train(self, content, style, loss, n_epoch=hp.n_epoch, save_path=None):
-    #     save_interval = 100
-        

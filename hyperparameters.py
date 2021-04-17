@@ -10,7 +10,7 @@ num_epochs = 10
 """
 training rate
 """
-learning_rate = 1e-3
+learning_rate = 1e-5
 
 
 """
@@ -22,9 +22,14 @@ alpha = 1
 """
 parameter to avoid divide by 0
 """
-spsilon = 1e-5
+epsilon = 1e-5
 
 """
 batch size
 """
-batch_size = 4
+batch_size = 1
+
+"""
+style loss weight
+"""
+s_lambda = 1
