@@ -5,7 +5,7 @@ Hyperparameters used in models
 """
 Number of training epochs
 """
-num_epochs = 10
+num_epochs = 1
 
 """
 training rate
@@ -33,3 +33,17 @@ batch_size = 1
 style loss weight
 """
 s_lambda = 1
+
+
+"""
+image size
+"""
+img_size = 256
+
+
+"""
+Sample size for calculating the mean and standard deviation of the
+training data. This many images will be randomly seleted to be read
+into memory temporarily.
+"""
+preprocess_sample_size = 400
