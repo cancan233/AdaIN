@@ -5,12 +5,12 @@ Hyperparameters used in models
 """
 Number of training epochs
 """
-num_epochs = 1
+num_epochs = 500
 
 """
 training rate
 """
-learning_rate = 1e-5
+learning_rate = 1e-4
 
 
 """
@@ -32,7 +32,7 @@ batch_size = 1
 """
 style loss weight
 """
-s_lambda = 1
+s_lambda = 2
 
 
 """

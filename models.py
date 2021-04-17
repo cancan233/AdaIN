@@ -2,9 +2,15 @@
 
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Layer, Conv2D, MaxPool2D, UpSampling2D
+from tensorflow.keras.layers import Layer, Conv2D, UpSampling2D
 
 import hyperparameters as hp
+
+def deprocess_img(img):
+    tmp = img + np.array([103.939, 116.779, 123.68])
+    tmp = tmp[:,:,:,::-1]
+    tmp = tf.clip_by_value(tmp, 0.0, 255.0)
+    return tmp
 
 class AdaIN(Layer):
     def __init__(self, epsilon=hp.epsilon, alpha=hp.alpha):
@@ -45,8 +51,6 @@ class encoder(tf.keras.Model):
             inputs=self.vgg19.input, outputs=outputs
         )
 
-
-
     def call(self, x):
         return self.vgg19_encoder(x)
 
@@ -68,15 +72,13 @@ class decoder(tf.keras.Model):
                 Conv2D(64, 3, 1, padding="same", activation="relu"),
                 UpSampling2D((2, 2)),
                 Conv2D(64, 3, 1, padding="same", activation="relu"),
-                Conv2D(3, 3, 1, padding="same", activation="relu"),
+                Conv2D(3, 3, 1, padding="same"),
             ],
             name="vgg19_decoder",
         )
 
     def call(self, x):
         return self.vgg19_decoder(x)
-
-
 
 class AdaIN_NST(tf.keras.Model):
     def __init__(self, epsilon=hp.epsilon, alpha=hp.alpha, s_lambda=hp.s_lambda, lr=hp.learning_rate):
@@ -97,6 +99,8 @@ class AdaIN_NST(tf.keras.Model):
         return [enc_style, adain_content, output]
 
     def loss_fn(self, enc_style, adain_content, output):
+        output = deprocess_img(output)
+        output = tf.keras.applications.vgg19.preprocess_input(output)
         enc_adain = self.enc(output)
         content_loss = tf.reduce_sum(tf.square(enc_adain[-1]-adain_content))
         style_loss_list = []
