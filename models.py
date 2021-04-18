@@ -66,7 +66,7 @@ class decoder(tf.keras.Model):
                 Conv2D(
                     256,
                     3,
-                    # input_shape=hp.input_shape,
+                    input_shape=(None, None, 512),
                     padding="same",
                     activation="relu",
                 ),
@@ -116,14 +116,14 @@ class AdaIN_NST(tf.keras.Model):
         output = deprocess_img(output)
         output = tf.keras.applications.vgg19.preprocess_input(output)
         enc_adain = self.enc(output)
-        content_loss = tf.reduce_sum(tf.square(enc_adain[-1] - adain_content))
+        content_loss = tf.reduce_mean(tf.square(enc_adain[-1] - adain_content))
         style_loss_list = []
         for i in range(len(enc_adain)):
             style_mean, style_variance = tf.nn.moments(enc_style[i], axes=[1, 2])
             adain_mean, adain_variance = tf.nn.moments(enc_adain[i], axes=[1, 2])
             style_std = tf.math.sqrt(style_variance + self.epsilon)
             adain_std = tf.math.sqrt(adain_variance + self.epsilon)
-            layer_loss = tf.reduce_sum(
+            layer_loss = tf.reduce_mean(
                 tf.square(style_mean - adain_mean) + tf.square(style_std - adain_std)
             )
             style_loss_list.append(layer_loss)
