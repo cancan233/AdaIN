@@ -5,6 +5,8 @@ logs
 checkpoints/
 data/
 images/
+output/
+slurm-*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
