@@ -36,6 +36,7 @@ def parse_args():
         default="." + os.sep + "images" + os.sep + "style",
         help="directory where the style is stored",
     )
+    parser.add_argument("--pretrained-vgg19", default="./vgg19_normalised.npz")
     parser.add_argument(
         "--load-checkpoint",
         default=None,
@@ -90,7 +91,7 @@ def train(model, content_data, style_data, logs_path, checkpoint_path):
 
 def test(model, content_image, style_image, output_name):
     imsave(
-        "./examples/output/{}.png".format(output_name),
+        "./examples/output/{}".format(output_name),
         deprocess_img(model([content_image, style_image])[-1].numpy())[0],
     )
 
@@ -107,14 +108,14 @@ def main():
         except RuntimeError as e:
             print(e)
 
-    model = AdaIN_NST()
+    model = AdaIN_NST(ARGS.pretrained_vgg19)
     checkpoint_path = "./output/checkpoints" + os.sep + timestamp + os.sep
     logs_path = "./output/logs" + os.sep + timestamp + os.sep
     logs_path = os.path.abspath(logs_path)
     model.compile(optimizer=model.optimizer, loss=model.loss_fn)
 
     if ARGS.load_checkpoint is not None:
-        model = tf.keras.models.load_model(ARGS.load_checkpoint)
+        model = tf.keras.models.load_model(ARGS.load_checkpoint, compile=False)
 
     if not ARGS.evaluate and not os.path.exists(checkpoint_path):
         os.makedirs(checkpoint_path)
@@ -129,6 +130,7 @@ def main():
             + os.path.split(ARGS.style_evaluate)[1]
         )
         test(model, content_image, style_image, output_name)
+
     else:
         datasets = ImageDataset(ARGS.content_dir, ARGS.style_dir)
         # train(
@@ -149,8 +151,8 @@ def main():
                 if i % 10 == 0:
                     tf.print(
                         "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, i, loss),
-                        # output_stream=sys.stdout
-                        output_stream="file://{}/loss.log".format(logs_path),
+                        output_stream=sys.stdout
+                        # output_stream="file://{}/loss.log".format(logs_path),
                     )
             save_name = "epoch{}".format(epoch)
             tf.keras.models.save_model(

@@ -2,7 +2,7 @@
 
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Layer, Conv2D, UpSampling2D
+from tensorflow.keras.layers import Layer, Conv2D, UpSampling2D, MaxPooling2D
 
 import hyperparameters as hp
 
@@ -44,7 +44,9 @@ class encoder(tf.keras.Model):
     def __init__(self, layer_names):
         super(encoder, self).__init__()
 
-        self.vgg19 = tf.keras.applications.VGG19(include_top=False, weights="imagenet")
+        self.vgg19 = tf.keras.applications.VGG19(
+            include_top=False, weights="imagenet", input_shape=hp.input_shape
+        )
 
         self.vgg19.trainable = False
         outputs = [self.vgg19.get_layer(name).output for name in layer_names]
@@ -55,18 +57,19 @@ class encoder(tf.keras.Model):
         return self.vgg19_encoder(x)
 
 
-class defined_encoder(tf.keras.Model):
-    def __init__(self, layer_names):
-        super(defined_encoder, self).__init__()
-
-
 class decoder(tf.keras.Model):
     def __init__(self):
         super(decoder, self).__init__()
 
         self.vgg19_decoder = tf.keras.Sequential(
             [
-                Conv2D(256, 3, 1, padding="same", activation="relu"),
+                Conv2D(
+                    256,
+                    3,
+                    # input_shape=hp.input_shape,
+                    padding="same",
+                    activation="relu",
+                ),
                 UpSampling2D((2, 2)),
                 Conv2D(256, 3, 1, padding="same", activation="relu"),
                 Conv2D(256, 3, 1, padding="same", activation="relu"),
@@ -87,7 +90,7 @@ class decoder(tf.keras.Model):
 
 
 class AdaIN_NST(tf.keras.Model):
-    def __init__(self):
+    def __init__(self, weight_path):
         super(AdaIN_NST, self).__init__()
         self.epsilon = hp.epsilon
         self.alpha = hp.alpha
@@ -95,6 +98,8 @@ class AdaIN_NST(tf.keras.Model):
         self.enc = encoder(
             ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"]
         )
+        # self.weight_path = weight_path
+        # self.enc = build_encoder(self.weight_path)
         self.adain = AdaIN(hp.epsilon, hp.alpha)
         self.dec = decoder()
         self.optimizer = tf.keras.optimizers.Adam(hp.learning_rate)

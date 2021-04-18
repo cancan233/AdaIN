@@ -37,3 +37,14 @@ style_lambda = 2
 image size
 """
 img_size = 256
+
+"""
+input image size
+"""
+input_shape = (None, None, 3)
+
+
+# """
+# VGG19 pretrianed weights path
+# """
+# weight_path = "./vgg19_normalised.npz"

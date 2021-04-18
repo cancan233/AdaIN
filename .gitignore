@@ -9,6 +9,7 @@ output/
 slurm-*
 plot_loss.py
 temp/
+vgg19_normalised.npz/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,14 +1,16 @@
 from skimage.io import imsave
-from preprocess import ImageDataset
+from preprocess import ImageDataset, get_image
 import tensorflow as tf
-
-datasets = ImageDataset("./examples/content", "./examples/style")
 from models import AdaIN_NST, deprocess_img
 
-model = tf.keras.models.load_model("./output/checkpoints/041721-201958/epoch399")
+content_image = get_image("./examples/content/brownspring.jpg")
+style_image = get_image("./examples/style/starry_night.jpg")
+
+output_name = "brownspring_starry_night.jpg"
+model = tf.keras.models.load_model(
+    "./output/checkpoints/041721-230915/epoch0", compile=False
+)
 imsave(
     "./examples/output/test.png",
-    deprocess_img(
-        model([next(datasets.content_data), next(datasets.style_data)])[-1].numpy()
-    )[0],
+    deprocess_img(model([content_image, style_image])[-1].numpy())[0],
 )

@@ -30,9 +30,11 @@ class ImageDataset:
             preprocessing_function=self.preprocess_fn
         )
 
+        target_size = (hp.img_size, hp.img_size)
+
         data_gen = data_gen.flow_from_directory(
             path,
-            target_size=(hp.img_size, hp.img_size),
+            target_size=target_size,
             classes=classes,
             class_mode=None,
             batch_size=hp.batch_size,
@@ -44,8 +46,11 @@ class ImageDataset:
 def get_image(path):
     img = tf.keras.preprocessing.image.load_img(
         path,
-        target_size=None,
+        color_mode="rgb",
+        # target_size=None,
+        target_size=(hp.img_size, hp.img_size),
     )
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)
+    img_array = tf.keras.applications.vgg19.preprocess_input(img_array)
     return img_array
