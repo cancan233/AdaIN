@@ -41,13 +41,25 @@ class AdaIN(Layer):
 
 # This can be simplified by directly loading VGG19 pretrained model
 class encoder(tf.keras.Model):
-    def __init__(self, layer_names):
+    def __init__(self, layer_names, weight_path):
         super(encoder, self).__init__()
 
         self.vgg19 = tf.keras.applications.VGG19(
-            include_top=False, weights="imagenet", input_shape=hp.input_shape
+            include_top=False, weights=None, input_shape=hp.input_shape
         )
-
+        
+        weights = np.load(weight_path)
+        i = 0
+        for layer in self.vgg19.layers:
+            kind = layer.name[-5:-1]
+            if kind == 'conv':
+                kernel = weights['arr_%d' % i].transpose([2, 3, 1, 0])
+                kernel = kernel.astype(np.float32)
+                bias = weights['arr_%d' % (i + 1)]
+                bias = bias.astype(np.float32)
+                layer.set_weights([kernel, bias])
+                i += 2
+                
         self.vgg19.trainable = False
         outputs = [self.vgg19.get_layer(name).output for name in layer_names]
 
@@ -96,13 +108,14 @@ class AdaIN_NST(tf.keras.Model):
         self.alpha = hp.alpha
         self.style_lambda = hp.style_lambda
         self.enc = encoder(
-            ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"]
+            ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"],
+            weight_path
         )
         # self.weight_path = weight_path
         # self.enc = build_encoder(self.weight_path)
         self.adain = AdaIN(hp.epsilon, hp.alpha)
         self.dec = decoder()
-        self.optimizer = tf.keras.optimizers.Adam(hp.learning_rate)
+        self.optimizer = tf.keras.optimizers.Adam((tf.keras.optimizers.schedules.InverseTimeDecay(hp.learning_rate, decay_steps=1, decay_rate=5e-5)))
 
     def call(self, input):
         content, style = input
@@ -116,14 +129,14 @@ class AdaIN_NST(tf.keras.Model):
         output = deprocess_img(output)
         output = tf.keras.applications.vgg19.preprocess_input(output)
         enc_adain = self.enc(output)
-        content_loss = tf.reduce_mean(tf.square(enc_adain[-1] - adain_content))
+        content_loss = tf.reduce_sum(tf.reduce_mean(tf.square(enc_adain[-1] - adain_content), axis=(1, 2)))
         style_loss_list = []
         for i in range(len(enc_adain)):
             style_mean, style_variance = tf.nn.moments(enc_style[i], axes=[1, 2])
             adain_mean, adain_variance = tf.nn.moments(enc_adain[i], axes=[1, 2])
             style_std = tf.math.sqrt(style_variance + self.epsilon)
             adain_std = tf.math.sqrt(adain_variance + self.epsilon)
-            layer_loss = tf.reduce_mean(
+            layer_loss = tf.reduce_sum(
                 tf.square(style_mean - adain_mean) + tf.square(style_std - adain_std)
             )
             style_loss_list.append(layer_loss)
