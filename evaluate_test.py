@@ -6,7 +6,6 @@ datasets = ImageDataset("./examples/content", "./examples/style")
 from models import AdaIN_NST, deprocess_img
 
 model = tf.keras.models.load_model("./output/checkpoints/041721-201958/epoch399")
-model.get_weights()
 imsave(
     "./examples/output/test.png",
     deprocess_img(

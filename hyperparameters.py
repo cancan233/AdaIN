@@ -37,11 +37,3 @@ style_lambda = 2
 image size
 """
 img_size = 256
-
-
-"""
-Sample size for calculating the mean and standard deviation of the
-training data. This many images will be randomly seleted to be read
-into memory temporarily.
-"""
-preprocess_sample_size = 400

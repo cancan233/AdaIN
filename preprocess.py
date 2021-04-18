@@ -1,7 +1,8 @@
 import os
 import random
 import numpy as np
-from PIL import Image
+
+# from PIL import Image
 import tensorflow as tf
 import hyperparameters as hp
 
@@ -42,7 +43,8 @@ class ImageDataset:
 
 def get_image(path):
     img = tf.keras.preprocessing.image.load_img(
-        path, target_size=(hp.img_size, hp.img_size)
+        path,
+        target_size=None,
     )
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)

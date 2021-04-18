@@ -123,7 +123,6 @@ def main():
     if ARGS.evaluate:
         content_image = get_image(ARGS.content_evaluate)
         style_image = get_image(ARGS.style_evaluate)
-
         output_name = (
             os.path.split(ARGS.content_evaluate)[1][:-4]
             + "_"
@@ -139,8 +138,9 @@ def main():
         #     logs_path,
         #     checkpoint_path,
         # )
+        num_batches = min(len(datasets.content_data), len(datasets.style_data))
         for epoch in range(hp.num_epochs):
-            for i in range(min(len(datasets.content_data), len(datasets.style_data))):
+            for i in range(num_batches):
                 content_data = next(datasets.content_data)
                 style_data = next(datasets.style_data)
                 loss = train(
@@ -149,8 +149,8 @@ def main():
                 if i % 10 == 0:
                     tf.print(
                         "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, i, loss),
-                        output_stream=sys.stdout
-                        # output_stream="file://{}/loss.log".format(logs_path),
+                        # output_stream=sys.stdout
+                        output_stream="file://{}/loss.log".format(logs_path),
                     )
             save_name = "epoch{}".format(epoch)
             tf.keras.models.save_model(
