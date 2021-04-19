@@ -111,8 +111,6 @@ class AdaIN_NST(tf.keras.Model):
             ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"],
             weight_path,
         )
-        # self.weight_path = weight_path
-        # self.enc = build_encoder(self.weight_path)
         self.adain = AdaIN(hp.epsilon, alpha)
         self.dec = decoder()
         self.optimizer = tf.keras.optimizers.Adam(
@@ -124,7 +122,6 @@ class AdaIN_NST(tf.keras.Model):
         )
 
     def call(self, content, style):
-        # content, style = input
         enc_content = self.enc(content)
         enc_style = self.enc(style)
         adain_content = self.adain(enc_content[-1], enc_style[-1])
@@ -150,12 +147,3 @@ class AdaIN_NST(tf.keras.Model):
             style_loss_list.append(layer_loss)
         style_loss = tf.reduce_sum(style_loss_list)
         return content_loss + self.style_lambda * style_loss
-
-    # def train_step(self, input):
-    #     # content_data, style_data = input
-    #     with tf.GradientTape() as tape:
-    #         enc_style, adain_content, output = self(input)
-    #         loss = self.loss_fn(enc_style, adain_content, output)
-    #     gradients = tape.gradient(loss, self.trainable_variables)
-    #     self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
-    #     return loss

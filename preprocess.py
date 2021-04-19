@@ -30,21 +30,6 @@ class ImageDataset:
         self.style_data = self.get_data(self.style_paths)
 
     def preprocess_fn(self, img):
-        """
-        height, width, _ = img.shape
-        if height < width:
-            new_height = 512
-            new_width = int(width * new_height / height)
-        else:
-            new_width = 512
-            new_height = int(height * new_width / width)
-        img = resize(img, [new_height, new_width], anti_aliasing=True)
-        start_h = np.random.choice(new_height - hp.img_size + 1)
-        start_w = np.random.choice(new_width - hp.img_size + 1)
-        img = img[
-            start_h : (start_h + hp.img_size), start_w : (start_w + hp.img_size), :
-        ]
-        """
         img = tf.keras.applications.vgg19.preprocess_input(img)
         return img
 

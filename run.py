@@ -20,8 +20,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def parse_args():
-    """Usage: Train: python run.py --content-dir [content-dir] --style-dir [style-dir] \n
-    Test: python run.py --load-checkpoint [checkpoint-file] --evaluate --content-evaulate [content-img] --style-evaluate [style-img]"""
+    """Perform command-line argument parsing. """
 
     parser = argparse.ArgumentParser(
         description="arguments parser for AdaIN-NST model",
@@ -75,22 +74,6 @@ class CustomModelSaver(tf.keras.callbacks.Callback):
 
 
 def train(model, content_data, style_data, logs_path, checkpoint_path):
-    # input = [content_data, style_data]
-
-    # callback_list = [
-    #     tf.keras.callbacks.TensorBoard(
-    #         log_dir=logs_path, update_freq="batch", profile_batch=0
-    #     ),
-    #     CustomModelSaver(checkpoint_path),
-    # ]
-    # model.fit(
-    #     x=input,
-    #     epochs=hp.num_epochs,
-    #     batch_size=None,
-    #     callbacks=callback_list,
-    #     # initial_epoch=init_epoch,
-    # )
-
     with tf.GradientTape() as tape:
         enc_style, adain_content, output = model(content_data, style_data)
         loss = model.loss_fn(enc_style, adain_content, output)
@@ -151,17 +134,15 @@ def main():
 
     else:
         num_batches = int(num_images // hp.batch_size)
-
-        # datasets = ImageDataset(ARGS.content_dir, ARGS.style_dir)
-        # train(
-        #     model,
-        #     datasets.content_data,
-        #     datasets.style_data,
-        #     logs_path,
-        #     checkpoint_path,
-        # )
+        if num_batches == 0:
+            raise Exception(
+                "Number of images have to be larger than the batch size. \n \tCurrent images pair: {} \n \tbatch size: {}".format(
+                    num_images, hp.batch_size
+                )
+            )
 
         """
+        datasets = ImageDataset(ARGS.content_dir, ARGS.style_dir)
         num_batches = min(len(datasets.content_data), len(datasets.style_data))
         for epoch in range(hp.num_epochs):
             for i in range(num_batches):
@@ -196,13 +177,13 @@ def main():
                         output_stream=sys.stdout
                         # output_stream="file://{}/loss.log".format(logs_path),
                     )
-                if i % 100 == 0:
-                    model.save_weights(
-                        "./output/checkpoints/training", save_format="tf"
-                    )
-            save_name = "epoch{}".format(epoch)
-            if not ARGS.no_save:
-                model.save_weights(filepath=checkpoint_path + os.sep + save_name)
+                if not ARGS.no_save:
+                    save_name = "epoch{}_batch_{}".format(epoch, batch)
+                    if batch % 500 == 0:
+                        model.save_weights(
+                            filepath=checkpoint_path + os.sep + save_name,
+                            save_format="tf",
+                        )
 
 
 if __name__ == "__main__":
