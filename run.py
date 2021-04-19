@@ -196,6 +196,10 @@ def main():
                         output_stream=sys.stdout
                         # output_stream="file://{}/loss.log".format(logs_path),
                     )
+                if i % 100 == 0:
+                    model.save_weights(
+                        "./output/checkpoints/training", save_format="tf"
+                    )
             save_name = "epoch{}".format(epoch)
             if not ARGS.no_save:
                 model.save_weights(filepath=checkpoint_path + os.sep + save_name)

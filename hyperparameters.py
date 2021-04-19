@@ -30,7 +30,7 @@ batch_size = 8
 """
 style loss weight
 """
-style_lambda = 1e-1
+style_lambda = 5
 
 
 """

@@ -38,6 +38,11 @@ rm -rf train/ test/ __MACOSX/ replacements_for_corrupted_files.zip
 echo "Download VGG19 pretrained weights..."
 wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
 
+<<<<<<< HEAD
 cd ..
 ## TODO: add pretrained model download link ##
 
+=======
+## Download pretrained normalized vgg19 model ##
+wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
+>>>>>>> 4a01fe49c53aa0e51db68626d6dfdca0d4a020a9

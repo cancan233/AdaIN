@@ -102,10 +102,10 @@ class decoder(tf.keras.Model):
 
 
 class AdaIN_NST(tf.keras.Model):
-    def __init__(self, weight_path):
+    def __init__(self, weight_path, alpha=hp.alpha):
         super(AdaIN_NST, self).__init__()
         self.epsilon = hp.epsilon
-        self.alpha = hp.alpha
+        self.alpha = alpha
         self.style_lambda = hp.style_lambda
         self.enc = encoder(
             ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"],
@@ -113,7 +113,7 @@ class AdaIN_NST(tf.keras.Model):
         )
         # self.weight_path = weight_path
         # self.enc = build_encoder(self.weight_path)
-        self.adain = AdaIN(hp.epsilon, hp.alpha)
+        self.adain = AdaIN(hp.epsilon, alpha)
         self.dec = decoder()
         self.optimizer = tf.keras.optimizers.Adam(
             (
