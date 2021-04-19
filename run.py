@@ -75,7 +75,7 @@ class CustomModelSaver(tf.keras.callbacks.Callback):
 
 
 def train(model, content_data, style_data, logs_path, checkpoint_path):
-    input = [content_data, style_data]
+    # input = [content_data, style_data]
 
     # callback_list = [
     #     tf.keras.callbacks.TensorBoard(
@@ -92,7 +92,7 @@ def train(model, content_data, style_data, logs_path, checkpoint_path):
     # )
 
     with tf.GradientTape() as tape:
-        enc_style, adain_content, output = model(input)
+        enc_style, adain_content, output = model(content_data, style_data)
         loss = model.loss_fn(enc_style, adain_content, output)
     gradients = tape.gradient(loss, model.trainable_variables)
     model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
@@ -120,8 +120,8 @@ def main():
         except RuntimeError as e:
             print(e)
 
-    content_images = glob.glob(ARGS.content_dir)
-    style_images = glob.glob(ARGS.style_dir)
+    content_images = glob.glob(ARGS.content_dir + os.sep + "*.jpg")
+    style_images = glob.glob(ARGS.style_dir + os.sep + "*.jpg")
     num_images = min(len(content_images), len(style_images))
     content_images = content_images[:num_images]
     style_images = style_images[:num_images]
@@ -133,7 +133,6 @@ def main():
     model.compile(optimizer=model.optimizer, loss=model.loss_fn)
 
     if ARGS.load_checkpoint is not None:
-        # model = tf.keras.models.load_model(ARGS.load_checkpoint, compile=False)
         model.load_weights(ARGS.load_checkpoint)
 
     if not ARGS.evaluate and not os.path.exists(checkpoint_path) and not ARGS.no_save:
@@ -152,21 +151,7 @@ def main():
 
     else:
         num_batches = int(num_images // hp.batch_size)
-        for epoch in range(hp.num_epochs):
-            np.random.shuffle(content_images)
-            np.random.shuffle(style_images)
 
-            for batch in range(num_batches):
-                content_batch_path = content_images[
-                    batch * hp.batch_size : (batch * hp.batch_size + hp.batch_size)
-                ]
-                style_batch_path = style_images[
-                    batch * hp.batch_size : (batch * hp.batch_size + hp.batch_size)
-                ]
-
-                content_batch = 
-                style_batch = 
-                train(model, content_batch, style_batch, logs_path, checkpoint_path)
         # datasets = ImageDataset(ARGS.content_dir, ARGS.style_dir)
         # train(
         #     model,
@@ -185,16 +170,35 @@ def main():
                 loss = train(
                     model, content_data, style_data, logs_path, checkpoint_path
                 )
-                if i % 10 == 0:
+        """
+        for epoch in range(hp.num_epochs):
+            np.random.shuffle(content_images)
+            np.random.shuffle(style_images)
+
+            for batch in range(num_batches):
+                content_batch_paths = content_images[
+                    batch * hp.batch_size : (batch * hp.batch_size + hp.batch_size)
+                ]
+                style_batch_paths = style_images[
+                    batch * hp.batch_size : (batch * hp.batch_size + hp.batch_size)
+                ]
+
+                datasets = ImageDataset(content_batch_paths, style_batch_paths)
+                content_data = datasets.content_data
+                style_data = datasets.style_data
+                loss = train(
+                    model, content_data, style_data, logs_path, checkpoint_path
+                )
+
+                if batch % 10 == 0:
                     tf.print(
-                        "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, i, loss),
+                        "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, batch, loss),
                         output_stream=sys.stdout
                         # output_stream="file://{}/loss.log".format(logs_path),
                     )
             save_name = "epoch{}".format(epoch)
             if not ARGS.no_save:
                 model.save_weights(filepath=checkpoint_path + os.sep + save_name)
-        """
 
 
 if __name__ == "__main__":

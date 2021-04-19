@@ -47,19 +47,19 @@ class encoder(tf.keras.Model):
         self.vgg19 = tf.keras.applications.VGG19(
             include_top=False, weights=None, input_shape=hp.input_shape
         )
-        
+
         weights = np.load(weight_path)
         i = 0
         for layer in self.vgg19.layers:
             kind = layer.name[-5:-1]
-            if kind == 'conv':
-                kernel = weights['arr_%d' % i].transpose([2, 3, 1, 0])
+            if kind == "conv":
+                kernel = weights["arr_%d" % i].transpose([2, 3, 1, 0])
                 kernel = kernel.astype(np.float32)
-                bias = weights['arr_%d' % (i + 1)]
+                bias = weights["arr_%d" % (i + 1)]
                 bias = bias.astype(np.float32)
                 layer.set_weights([kernel, bias])
                 i += 2
-                
+
         self.vgg19.trainable = False
         outputs = [self.vgg19.get_layer(name).output for name in layer_names]
 
@@ -109,16 +109,22 @@ class AdaIN_NST(tf.keras.Model):
         self.style_lambda = hp.style_lambda
         self.enc = encoder(
             ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"],
-            weight_path
+            weight_path,
         )
         # self.weight_path = weight_path
         # self.enc = build_encoder(self.weight_path)
         self.adain = AdaIN(hp.epsilon, hp.alpha)
         self.dec = decoder()
-        self.optimizer = tf.keras.optimizers.Adam((tf.keras.optimizers.schedules.InverseTimeDecay(hp.learning_rate, decay_steps=1, decay_rate=5e-5)))
+        self.optimizer = tf.keras.optimizers.Adam(
+            (
+                tf.keras.optimizers.schedules.InverseTimeDecay(
+                    hp.learning_rate, decay_steps=1, decay_rate=5e-5
+                )
+            )
+        )
 
-    def call(self, input):
-        content, style = input
+    def call(self, content, style):
+        # content, style = input
         enc_content = self.enc(content)
         enc_style = self.enc(style)
         adain_content = self.adain(enc_content[-1], enc_style[-1])
@@ -129,7 +135,9 @@ class AdaIN_NST(tf.keras.Model):
         output = deprocess_img(output)
         output = tf.keras.applications.vgg19.preprocess_input(output)
         enc_adain = self.enc(output)
-        content_loss = tf.reduce_sum(tf.reduce_mean(tf.square(enc_adain[-1] - adain_content), axis=(1, 2)))
+        content_loss = tf.reduce_sum(
+            tf.reduce_mean(tf.square(enc_adain[-1] - adain_content), axis=(1, 2))
+        )
         style_loss_list = []
         for i in range(len(enc_adain)):
             style_mean, style_variance = tf.nn.moments(enc_style[i], axes=[1, 2])

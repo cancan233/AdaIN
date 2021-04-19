@@ -11,10 +11,12 @@ import hyperparameters as hp
 
 
 class ImageDataset:
-    def __init__(self, content_dir, style_dir):
-        self.content_dir = content_dir
-        self.style_dir = style_dir
-        # Note: in case of class_mode None, the data still needs to reside in a subdirectory of directory for it to work correctly. Thus, here I manually define the class as the directory name of the content_dir and style_dir respectively.
+    def __init__(self, content_paths, style_paths):
+        self.content_paths = content_paths
+        self.style_paths = style_paths
+
+        # Note: (only if you flow_from_directory) in case of class_mode None, the data still needs to reside in a subdirectory of directory for it to work correctly. Thus, here I manually define the class as the directory name of the content_dir and style_dir respectively.
+        """
         self.content_dir_head, self.content_dir_tail = os.path.split(self.content_dir)
         self.style_dir_head, self.style_dir_tail = os.path.split(self.style_dir)
         self.content_data = self.get_data(
@@ -23,6 +25,9 @@ class ImageDataset:
         self.style_data = self.get_data(
             self.style_dir_head, classes=[self.style_dir_tail]
         )
+        """
+        self.content_data = self.get_data(self.content_paths)
+        self.style_data = self.get_data(self.style_paths)
 
     def preprocess_fn(self, img):
         """
@@ -43,26 +48,28 @@ class ImageDataset:
         img = tf.keras.applications.vgg19.preprocess_input(img)
         return img
 
-    def get_data(self, directory, classes):
+    # def get_data(self, paths, classes):
+    def get_data(self, paths):
         images = []
-        paths = os.listdir(directory)
         for path in paths:
-            path = os.path.join(os.path.abspath(directory), path)
             image = tf.keras.preprocessing.image.load_img(path)
             image_array = tf.keras.preprocessing.image.img_to_array(image)
-            # image_array = tf.expand_dims(image_array, 0)
             resized_image = tf.image.resize(
                 image_array, [512, 512], method="nearest", preserve_aspect_ratio=False
             )
             cropped_image = tf.image.random_crop(
                 resized_image, size=[hp.img_size, hp.img_size, 3]
             )
-            images.append(cropped_image)
-        print(np.array(images).shape)
+            image = tf.keras.applications.vgg19.preprocess_input(cropped_image)
+            images.append(image)
+
+        """
+        Don't know how to implement the custom resize into flow_from_directory.
+
         data_gen = tf.keras.preprocessing.image.ImageDataGenerator(
             preprocessing_function=self.preprocess_fn
         )
-        """
+
         data_gen = data_gen.flow_from_directory(
             path,
             target_size=None,
@@ -73,9 +80,8 @@ class ImageDataset:
             shuffle=True,
         )
         """
-        data_gen = data_gen.flow(images, batch_size=hp.batch_size, shuffle=True)
-        exit()
-        return data_gen
+
+        return np.array(images)
 
 
 def get_image(path):
