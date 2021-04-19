@@ -23,7 +23,21 @@ wget -O ./WikiArt.tgz https://github.com/somewacko/painter-by-numbers/releases/d
 tar -xzvf ./WikiArt.tgz
 mv train style
 rm -rf ./WikiArt.tgz
+
+echo "Download WikiArt normal-size data..."
+kaggle competitions download -f train.zip painter-by-numbers
+unzip train.zip
+mv train style_normal
+kaggle competitions download -f replacements_for_corrupted_files.zip painter-by-numbers
+rm -rf train.zip
+
+unzip replacements_for_corrupted_files.zip
+mv train/* style_normal
+rm -rf train/ test/ __MACOSX/ replacements_for_corrupted_files.zip
+
+echo "Download VGG19 pretrained weights..."
+wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
+
 cd ..
-
-
 ## TODO: add pretrained model download link ##
+

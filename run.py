@@ -3,6 +3,7 @@ Modified from Project 4, CS1430
 """
 
 import os
+import glob
 import sys
 import argparse
 import re
@@ -36,7 +37,16 @@ def parse_args():
         default="." + os.sep + "images" + os.sep + "style",
         help="directory where the style is stored",
     )
-    parser.add_argument("--pretrained-vgg19", default="./vgg19_normalised.npz")
+    parser.add_argument(
+        "--pretrained-vgg19",
+        default="./images/vgg19_normalised.npz",
+        help="fila path for vgg19 pretrained weights, end with .npz",
+    )
+    parser.add_argument(
+        "--no-save",
+        action="store_true",
+        help="not save the checkpoints, logs and model. Used only for develop purpose",
+    )
     parser.add_argument(
         "--load-checkpoint",
         default=None,
@@ -90,8 +100,10 @@ def train(model, content_data, style_data, logs_path, checkpoint_path):
 
 
 def test(model, content_image, style_image, output_name):
+    if os.path.isdir("./examples/results"):
+        os.mkdir("./examples/results")
     imsave(
-        "./examples/output/{}".format(output_name),
+        "./examples/results/{}".format(output_name),
         deprocess_img(model([content_image, style_image])[-1].numpy())[0],
     )
 
@@ -108,6 +120,12 @@ def main():
         except RuntimeError as e:
             print(e)
 
+    content_images = glob.glob(ARGS.content_dir)
+    style_images = glob.glob(ARGS.style_dir)
+    num_images = min(len(content_images), len(style_images))
+    content_images = content_images[:num_images]
+    style_images = style_images[:num_images]
+
     model = AdaIN_NST(ARGS.pretrained_vgg19)
     checkpoint_path = "./output/checkpoints" + os.sep + timestamp + os.sep
     logs_path = "./output/logs" + os.sep + timestamp + os.sep
@@ -115,9 +133,10 @@ def main():
     model.compile(optimizer=model.optimizer, loss=model.loss_fn)
 
     if ARGS.load_checkpoint is not None:
-        model = tf.keras.models.load_model(ARGS.load_checkpoint, compile=False)
+        # model = tf.keras.models.load_model(ARGS.load_checkpoint, compile=False)
+        model.load_weights(ARGS.load_checkpoint)
 
-    if not ARGS.evaluate and not os.path.exists(checkpoint_path):
+    if not ARGS.evaluate and not os.path.exists(checkpoint_path) and not ARGS.no_save:
         os.makedirs(checkpoint_path)
         os.makedirs(logs_path)
 
@@ -132,7 +151,23 @@ def main():
         test(model, content_image, style_image, output_name)
 
     else:
-        datasets = ImageDataset(ARGS.content_dir, ARGS.style_dir)
+        num_batches = int(num_images // hp.batch_size)
+        for epoch in range(hp.num_epochs):
+            np.random.shuffle(content_images)
+            np.random.shuffle(style_images)
+
+            for batch in range(num_batches):
+                content_batch_path = content_images[
+                    batch * hp.batch_size : (batch * hp.batch_size + hp.batch_size)
+                ]
+                style_batch_path = style_images[
+                    batch * hp.batch_size : (batch * hp.batch_size + hp.batch_size)
+                ]
+
+                content_batch = 
+                style_batch = 
+                train(model, content_batch, style_batch, logs_path, checkpoint_path)
+        # datasets = ImageDataset(ARGS.content_dir, ARGS.style_dir)
         # train(
         #     model,
         #     datasets.content_data,
@@ -140,6 +175,8 @@ def main():
         #     logs_path,
         #     checkpoint_path,
         # )
+
+        """
         num_batches = min(len(datasets.content_data), len(datasets.style_data))
         for epoch in range(hp.num_epochs):
             for i in range(num_batches):
@@ -155,9 +192,9 @@ def main():
                         # output_stream="file://{}/loss.log".format(logs_path),
                     )
             save_name = "epoch{}".format(epoch)
-            tf.keras.models.save_model(
-                model, checkpoint_path + os.sep + save_name, save_format="tf"
-            )
+            if not ARGS.no_save:
+                model.save_weights(filepath=checkpoint_path + os.sep + save_name)
+        """
 
 
 if __name__ == "__main__":

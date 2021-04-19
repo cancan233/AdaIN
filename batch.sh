@@ -13,7 +13,7 @@ module load gcc/10.2
 module load cudnn/8.1.0
 source ~/pythonenv/tf_gpu/bin/activate
 
-python run.py --content-dir ./images/content --style-dir ./images/style
+python run.py --content-dir ./images/content --style-dir ./images/style --pretrained-vgg19 ./vgg19_normalised.npz
 
 # deal the data file
 
