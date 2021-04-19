@@ -108,10 +108,16 @@ def clean_images():
         img_path = os.path.join(os.path.abspath(directory), path)
         try:
             image = imread(img_path)
-            if len(image.shape) != 3 or image.shape[2] != 3:
+            if len(image.shape) != 3 or image.shape[2] != 3 or image.size > 89478485:
                 num_delete += 1
                 os.remove(img_path)
-                print("\nimage.shape:", image.shape, " Remove image <%s>\n" % img_path)
+                print(
+                    "\nimage.shape:",
+                    image.shape,
+                    "image.size:",
+                    image.size,
+                    " Remove image <%s>\n" % img_path,
+                )
             else:
                 height, width, _ = image.shape
 
