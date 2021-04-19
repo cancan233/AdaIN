@@ -7,8 +7,8 @@ content_image = get_image("./examples/content/brownspring.jpg")
 style_image = get_image("./examples/style/starry_night.jpg")
 
 output_name = "brownspring_starry_night.jpg"
-model=AdaIN_NST("./vgg19_normalised.npz")
-model.load_weights("./output/checkpoints/training")
+model=AdaIN_NST("./vgg19_normalised.npz", 1)
+model.load_weights("./slambda5/epoch0")
 '''
 model = tf.keras.models.load_model(
     "./output/checkpoints/041821-124334/epoch0/", compile=False
