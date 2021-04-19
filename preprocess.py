@@ -47,8 +47,8 @@ def get_image(path):
     img = tf.keras.preprocessing.image.load_img(
         path,
         color_mode="rgb",
-        # target_size=None,
-        target_size=(hp.img_size, hp.img_size),
+        target_size=None,
+        #target_size=(hp.img_size, hp.img_size),
     )
     img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)

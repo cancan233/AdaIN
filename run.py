@@ -154,10 +154,15 @@ def main():
                         output_stream=sys.stdout
                         # output_stream="file://{}/loss.log".format(logs_path),
                     )
+                if i % 100 == 0:
+                    model.save_weights('./output/checkpoints/training', save_format="tf")
             save_name = "epoch{}".format(epoch)
+            model.save_weights(checkpoint_path + os.sep + save_name, save_format="tf")
+            '''
             tf.keras.models.save_model(
                 model, checkpoint_path + os.sep + save_name, save_format="tf"
             )
+            '''
 
 
 if __name__ == "__main__":

@@ -26,4 +26,5 @@ rm -rf ./WikiArt.tgz
 cd ..
 
 
-## TODO: add pretrained model download link ##
+## Download pretrained normalized vgg19 model ##
+wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
