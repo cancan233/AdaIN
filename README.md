@@ -12,6 +12,16 @@ The training content images are [MS-COCO](https://cocodataset.org/#home) and sty
 
 We also provide cleaned WikiArt dataset using clean() defined in our preprocess.py on google drive. Total number is 78572 while from kaggle it is 79433. 861 images are removed because of dimension mismatch or too large size.
 
+## Train
+``` python
+python run.py --content-dir ./images/content --style-dir ./images/style_kaggle --pretrained-vgg19 ./images/vgg19_normalised.npz
+```
+
+## Train
+``` python
+python run.py --load-checkpoint ./output/checkpoints/041921-213116/epoch1_batch_4000 --evaluate --content-evaluate ./examples/content/brownspring.jpg --style-evaluate ./examples/style/starry_night.jpg
+```
+
 ## Some defects
 * We take the "same" padding in our encoder and decoder model, while in the paper, they use "reflect" padding to avoid border artifacts.
 

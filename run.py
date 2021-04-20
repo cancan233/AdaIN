@@ -83,11 +83,11 @@ def train(model, content_data, style_data, logs_path, checkpoint_path):
 
 
 def test(model, content_image, style_image, output_name):
-    if os.path.isdir("./examples/results"):
+    if not os.path.isdir("./examples/results"):
         os.mkdir("./examples/results")
     imsave(
         "./examples/results/{}".format(output_name),
-        deprocess_img(model([content_image, style_image])[-1].numpy())[0],
+        deprocess_img(model(content_image, style_image)[-1].numpy())[0],
     )
 
 
@@ -116,7 +116,7 @@ def main():
     model.compile(optimizer=model.optimizer, loss=model.loss_fn)
 
     if ARGS.load_checkpoint is not None:
-        model.load_weights(ARGS.load_checkpoint)
+        model.load_weights(ARGS.load_checkpoint).expect_partial()
 
     if not ARGS.evaluate and not os.path.exists(checkpoint_path) and not ARGS.no_save:
         os.makedirs(checkpoint_path)
@@ -178,12 +178,11 @@ def main():
                         output_stream="file://{}/loss.log".format(logs_path),
                     )
                 if not ARGS.no_save:
-                    save_name = "epoch_{}_batch_{}".format(epoch, batch)
-                    if batch % 500 == 0:
-                        model.save_weights(
-                            filepath=checkpoint_path + os.sep + save_name,
-                            save_format="tf",
-                        )
+                    save_name = "epoch_{}".format(epoch)
+                    model.save_weights(
+                        filepath=checkpoint_path + os.sep + save_name,
+                        save_format="tf",
+                    )
 
 
 if __name__ == "__main__":
