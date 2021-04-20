@@ -1,8 +1,6 @@
-# Based on https://github.com/JunbinWang/Tensorflow-Style-Transfer-with-Adain/blob/master/adain_norm.py
-
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Layer, Conv2D, UpSampling2D, MaxPooling2D
+from tensorflow.keras.layers import Layer, Conv2D, UpSampling2D, MaxPooling2D, Lambda, Input
 
 import hyperparameters as hp
 
@@ -51,14 +49,22 @@ class encoder(tf.keras.Model):
         weights = np.load(weight_path)
         i = 0
         for layer in self.vgg19.layers:
-            kind = layer.name[-5:-1]
-            if kind == "conv":
-                kernel = weights["arr_%d" % i].transpose([2, 3, 1, 0])
+            if layer.name[-5:-1] == 'conv':
+                kernel = weights['arr_%d' % i].transpose([2, 3, 1, 0])
                 kernel = kernel.astype(np.float32)
-                bias = weights["arr_%d" % (i + 1)]
+                bias = weights['arr_%d' % (i + 1)]
                 bias = bias.astype(np.float32)
                 layer.set_weights([kernel, bias])
                 i += 2
+
+        layers = [l for l in self.vgg19.layers]
+        x = layers[0].output
+        for i in range(1, len(layers)):
+            if layers[i].name[-5:-1] == 'conv':
+                x = Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))(x)
+                setattr(layers[i],'padding','valid')
+            x = layers[i](x)
+        self.vgg19 = tf.keras.Model(inputs=layers[0].input, outputs=x)
 
         self.vgg19.trainable = False
         outputs = [self.vgg19.get_layer(name).output for name in layer_names]
@@ -75,27 +81,31 @@ class decoder(tf.keras.Model):
 
         self.vgg19_decoder = tf.keras.Sequential(
             [
-                Conv2D(
-                    256,
-                    3,
-                    input_shape=(None, None, 512),
-                    padding="same",
-                    activation="relu",
-                ),
-                UpSampling2D((2, 2)),
-                Conv2D(256, 3, 1, padding="same", activation="relu"),
-                Conv2D(256, 3, 1, padding="same", activation="relu"),
-                Conv2D(256, 3, 1, padding="same", activation="relu"),
-                Conv2D(128, 3, 1, padding="same", activation="relu"),
-                UpSampling2D((2, 2)),
-                Conv2D(128, 3, 1, padding="same", activation="relu"),
-                Conv2D(64, 3, 1, padding="same", activation="relu"),
-                UpSampling2D((2, 2)),
-                Conv2D(64, 3, 1, padding="same", activation="relu"),
-                Conv2D(3, 3, 1, padding="same"),
+                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block4_conv1"),
+                UpSampling2D((2, 2), name="dec_block3_pool"),
+                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block3_conv4"),
+                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block3_conv3"),
+                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block3_conv2"),
+                Conv2D(128, 3, 1, padding="valid", activation="relu", name="dec_block3_conv1"),
+                UpSampling2D((2, 2), name="dec_block2_pool"),
+                Conv2D(128, 3, 1, padding="valid", activation="relu", name="dec_block2_conv2"),
+                Conv2D(64, 3, 1, padding="valid", activation="relu", name="dec_block2_conv1"),
+                UpSampling2D((2, 2), name="dec_block1_pool"),
+                Conv2D(64, 3, 1, padding="valid", activation="relu", name="dec_block1_conv2"),
+                Conv2D(3, 3, 1, padding="valid", name="dec_block1_conv1"),
             ],
             name="vgg19_decoder",
         )
+
+        layers = [l for l in self.vgg19_decoder.layers]
+        inputs = Input(shape=(None,None,512))
+        x = Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))(inputs)
+        x = layers[0](x)
+        for i in range(1, len(layers)):
+            if layers[i].name[-5:-1] == 'conv':
+                x = Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))(x)
+            x = layers[i](x)
+        self.vgg19_decoder = tf.keras.Model(inputs=inputs, outputs=x)
 
     def call(self, x):
         return self.vgg19_decoder(x)
@@ -109,19 +119,16 @@ class AdaIN_NST(tf.keras.Model):
         self.style_lambda = hp.style_lambda
         self.enc = encoder(
             ["block1_conv1", "block2_conv1", "block3_conv1", "block4_conv1"],
-            weight_path,
+            weight_path
         )
+        # self.weight_path = weight_path
+        # self.enc = build_encoder(self.weight_path)
         self.adain = AdaIN(hp.epsilon, alpha)
         self.dec = decoder()
-        self.optimizer = tf.keras.optimizers.Adam(
-            (
-                tf.keras.optimizers.schedules.InverseTimeDecay(
-                    hp.learning_rate, decay_steps=1, decay_rate=5e-5
-                )
-            )
-        )
+        self.optimizer = tf.keras.optimizers.Adam((tf.keras.optimizers.schedules.InverseTimeDecay(hp.learning_rate, decay_steps=1, decay_rate=5e-5)))
 
-    def call(self, content, style):
+    def call(self, input):
+        content, style = input
         enc_content = self.enc(content)
         enc_style = self.enc(style)
         adain_content = self.adain(enc_content[-1], enc_style[-1])
@@ -132,9 +139,7 @@ class AdaIN_NST(tf.keras.Model):
         output = deprocess_img(output)
         output = tf.keras.applications.vgg19.preprocess_input(output)
         enc_adain = self.enc(output)
-        content_loss = tf.reduce_sum(
-            tf.reduce_mean(tf.square(enc_adain[-1] - adain_content), axis=(1, 2))
-        )
+        content_loss = tf.reduce_sum(tf.reduce_mean(tf.square(enc_adain[-1] - adain_content), axis=(1, 2)))
         style_loss_list = []
         for i in range(len(enc_adain)):
             style_mean, style_variance = tf.nn.moments(enc_style[i], axes=[1, 2])
@@ -147,3 +152,12 @@ class AdaIN_NST(tf.keras.Model):
             style_loss_list.append(layer_loss)
         style_loss = tf.reduce_sum(style_loss_list)
         return content_loss + self.style_lambda * style_loss
+
+    # def train_step(self, input):
+    #     # content_data, style_data = input
+    #     with tf.GradientTape() as tape:
+    #         enc_style, adain_content, output = self(input)
+    #         loss = self.loss_fn(enc_style, adain_content, output)
+    #     gradients = tape.gradient(loss, self.trainable_variables)
+    #     self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+    #     return loss
