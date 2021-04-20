@@ -43,11 +43,13 @@ class ImageDataset:
             image_array = tf.keras.preprocessing.image.img_to_array(image)
             # Cannot use tf.image.resize() because it will yield images whose largest dimension is 512 while the smallest one can be smaller than 256, when preserve_aspect_ratio is True. Use smart_resize() here, which is a little different than what described in the paper.
 
-            resized_image = tf.keras.preprocessing.image.smart_resize(
-                image_array, [512, 512]
-            )
+            # resized_image = tf.keras.preprocessing.image.smart_resize(
+            #     image_array, [512, 512]
+            # )
 
-            # resized_image = image_array
+            # By default, we think you use the cleaned and resized images.
+            resized_image = image_array
+
             cropped_image = tf.image.random_crop(
                 resized_image, size=[hp.img_size, hp.img_size, 3]
             )

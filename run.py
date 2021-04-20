@@ -178,8 +178,8 @@ def main():
                 if batch % 10 == 0:
                     tf.print(
                         "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, batch, loss),
-                        output_stream=sys.stdout,
-                        # output_stream="file://{}/loss.log".format(logs_path),
+                        # output_stream=sys.stdout,
+                        output_stream="file://{}/loss.log".format(logs_path),
                     )
                 if not ARGS.no_save and batch % 5000 == 0:
                     save_name = "epoch_{}_batch_{}".format(epoch, batch)
