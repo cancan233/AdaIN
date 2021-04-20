@@ -106,6 +106,7 @@ def main():
     content_images = glob.glob(ARGS.content_dir + os.sep + "*.jpg")
     style_images = glob.glob(ARGS.style_dir + os.sep + "*.jpg")
     num_images = min(len(content_images), len(style_images))
+    print("Total {} images will be used.".format(num_images))
     content_images = content_images[:num_images]
     style_images = style_images[:num_images]
 
@@ -117,6 +118,9 @@ def main():
 
     if ARGS.load_checkpoint is not None:
         model.load_weights(ARGS.load_checkpoint).expect_partial()
+
+    print("checkpoint saved in : {}".format(checkpoint_path))
+    print("log saved in : {}".format(logs_path))
 
     if not ARGS.evaluate and not os.path.exists(checkpoint_path) and not ARGS.no_save:
         os.makedirs(checkpoint_path)
@@ -174,8 +178,8 @@ def main():
                 if batch % 10 == 0:
                     tf.print(
                         "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, batch, loss),
-                        # output_stream=sys.stdout,
-                        output_stream="file://{}/loss.log".format(logs_path),
+                        output_stream=sys.stdout,
+                        # output_stream="file://{}/loss.log".format(logs_path),
                     )
                 if not ARGS.no_save and batch % 5000 == 0:
                     save_name = "epoch_{}_batch_{}".format(epoch, batch)

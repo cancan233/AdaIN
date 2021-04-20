@@ -5,7 +5,7 @@ Hyperparameters used in models
 """
 Number of training epochs
 """
-num_epochs = 400
+num_epochs = 20
 
 """
 training rate

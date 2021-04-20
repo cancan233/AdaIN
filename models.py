@@ -2,7 +2,14 @@
 
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.layers import Layer, Conv2D, UpSampling2D, MaxPooling2D, Lambda, Input
+from tensorflow.keras.layers import (
+    Layer,
+    Conv2D,
+    UpSampling2D,
+    MaxPooling2D,
+    Lambda,
+    Input,
+)
 
 import hyperparameters as hp
 
@@ -58,16 +65,18 @@ class encoder(tf.keras.Model):
                 bias = bias.astype(np.float32)
                 layer.set_weights([kernel, bias])
                 i += 2
-                
+
         layers = [l for l in self.vgg19.layers]
         x = layers[0].output
         for i in range(1, len(layers)):
-            if layers[i].name[-5:-1] == 'conv':
-                x = Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))(x)
-                setattr(layers[i],'padding','valid')
+            if layers[i].name[-5:-1] == "conv":
+                x = Lambda(
+                    lambda x: tf.pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]], "REFLECT")
+                )(x)
+                setattr(layers[i], "padding", "valid")
             x = layers[i](x)
         self.vgg19 = tf.keras.Model(inputs=layers[0].input, outputs=x)
-        
+
         self.vgg19.trainable = False
         outputs = [self.vgg19.get_layer(name).output for name in layer_names]
 
@@ -83,32 +92,92 @@ class decoder(tf.keras.Model):
 
         self.vgg19_decoder = tf.keras.Sequential(
             [
-                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block4_conv1"),
+                Conv2D(
+                    256,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block4_conv1",
+                ),
                 UpSampling2D((2, 2), name="dec_block3_pool"),
-                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block3_conv4"),
-                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block3_conv3"),
-                Conv2D(256, 3, 1, padding="valid", activation="relu", name="dec_block3_conv2"),
-                Conv2D(128, 3, 1, padding="valid", activation="relu", name="dec_block3_conv1"),
+                Conv2D(
+                    256,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block3_conv4",
+                ),
+                Conv2D(
+                    256,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block3_conv3",
+                ),
+                Conv2D(
+                    256,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block3_conv2",
+                ),
+                Conv2D(
+                    128,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block3_conv1",
+                ),
                 UpSampling2D((2, 2), name="dec_block2_pool"),
-                Conv2D(128, 3, 1, padding="valid", activation="relu", name="dec_block2_conv2"),
-                Conv2D(64, 3, 1, padding="valid", activation="relu", name="dec_block2_conv1"),
+                Conv2D(
+                    128,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block2_conv2",
+                ),
+                Conv2D(
+                    64,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block2_conv1",
+                ),
                 UpSampling2D((2, 2), name="dec_block1_pool"),
-                Conv2D(64, 3, 1, padding="valid", activation="relu", name="dec_block1_conv2"),
+                Conv2D(
+                    64,
+                    3,
+                    1,
+                    padding="valid",
+                    activation="relu",
+                    name="dec_block1_conv2",
+                ),
                 Conv2D(3, 3, 1, padding="valid", name="dec_block1_conv1"),
             ],
             name="vgg19_decoder",
         )
-        
+
         layers = [l for l in self.vgg19_decoder.layers]
-        inputs = Input(shape=(None,None,512))
-        x = Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))(inputs)
+        inputs = Input(shape=(None, None, 512))
+        x = Lambda(lambda x: tf.pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]], "REFLECT"))(
+            inputs
+        )
         x = layers[0](x)
         for i in range(1, len(layers)):
-            if layers[i].name[-5:-1] == 'conv':
-                x = Lambda(lambda x: tf.pad(x, [[0,0], [1,1], [1,1], [0,0]], 'REFLECT'))(x)
+            if layers[i].name[-5:-1] == "conv":
+                x = Lambda(
+                    lambda x: tf.pad(x, [[0, 0], [1, 1], [1, 1], [0, 0]], "REFLECT")
+                )(x)
             x = layers[i](x)
         self.vgg19_decoder = tf.keras.Model(inputs=inputs, outputs=x)
-        
+
     def call(self, x):
         return self.vgg19_decoder(x)
 

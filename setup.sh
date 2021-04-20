@@ -45,10 +45,10 @@ COMMENT
 # Below code does not work for such a huge file. 
 # Here is the link for the file https://drive.google.com/file/d/1Y7O3J_htkaFc1FSPIoc8oEWvzD3843ug/view?usp=sharing
 
+FILEID='1Y7O3J_htkaFc1FSPIoc8oEWvzD3843ug'
+
 echo "Download WikiArt cleaned data..."
-FILEID="1n1s23CdPUy--D_DgRH1i-BAnt75joLqg"
-FILENAME="train_cleaned.tar.gz"
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=${FILEID}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${FILENAME} && rm -rf /tmp/cookies.txt
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1Y7O3J_htkaFc1FSPIoc8oEWvzD3843ug' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1Y7O3J_htkaFc1FSPIoc8oEWvzD3843ug" -O style_cleaned.tar.gz && rm -rf /tmp/cookies.txt
 COMMENT
 
 

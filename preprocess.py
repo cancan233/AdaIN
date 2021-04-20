@@ -4,6 +4,7 @@ import numpy as np
 import sys
 from skimage.io import imread, imsave
 from skimage.transform import resize
+from skimage import img_as_ubyte
 from tqdm import tqdm
 
 import tensorflow as tf
@@ -36,22 +37,21 @@ class ImageDataset:
     # def get_data(self, paths, classes):
     def get_data(self, paths):
         images = []
+
         for path in paths:
             image = tf.keras.preprocessing.image.load_img(path)
             image_array = tf.keras.preprocessing.image.img_to_array(image)
-
             # Cannot use tf.image.resize() because it will yield images whose largest dimension is 512 while the smallest one can be smaller than 256, when preserve_aspect_ratio is True. Use smart_resize() here, which is a little different than what described in the paper.
 
-            # resized_image = tf.keras.preprocessing.image.smart_resize(
-            #     image_array, [512, 512]
-            # )
+            resized_image = tf.keras.preprocessing.image.smart_resize(
+                image_array, [512, 512]
+            )
 
-            #  If you use the preprocesed data we provided, use following line.
-            resized_image = image_array
-
+            # resized_image = image_array
             cropped_image = tf.image.random_crop(
                 resized_image, size=[hp.img_size, hp.img_size, 3]
             )
+
             image = tf.keras.applications.vgg19.preprocess_input(cropped_image)
             images.append(image)
 
@@ -108,7 +108,7 @@ def clean_images():
             image = imread(img_path)
             if len(image.shape) != 3 or image.shape[2] != 3 or image.size > 89478485:
                 num_delete += 1
-                os.remove(img_path)
+                # os.remove(img_path)
                 print(
                     "\nimage.shape:",
                     image.shape,
@@ -133,16 +133,16 @@ def clean_images():
                     save_name = (
                         directory + "_cleaned" + os.sep + os.path.split(img_path)[1]
                     )
-                    imsave(save_name, resized_image)
+                    imsave(save_name, img_as_ubyte(resized_image))
 
                 except:
                     print("Cant resize this file, will delete it")
                     num_delete += 1
-                    os.remove(img_path)
+                    # os.remove(img_path)
         except:
             num_delete += 1
             print("Cant read this file, will delete it")
-            os.remove(img_path)
+            # os.remove(img_path)
 
     print(
         "\n\ndelete %d files! Current number of files: %d\n\n"
@@ -150,5 +150,25 @@ def clean_images():
     )
 
 
+def test_cleaned_images():
+    directory = sys.argv[1]
+    if directory[-1] == "/":
+        directory = directory[:-1]
+    paths = os.listdir(directory)
+    for i in tqdm(range(len(paths))):
+        path = paths[i]
+        img_path = os.path.join(os.path.abspath(directory), path)
+        try:
+            image = imread(img_path)
+            image_array = tf.keras.preprocessing.image.img_to_array(image)
+            resized_image = image_array
+            resized_image = tf.image.random_crop(
+                resized_image, size=[hp.img_size, hp.img_size, 3]
+            )
+        except:
+            print(img_path)
+
+
 if __name__ == "__main__":
     clean_images()
+    # test_cleaned_images()
