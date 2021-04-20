@@ -17,32 +17,39 @@ unzip ./train2014.zip
 mv train2014 content
 rm -rf ./train2014.zip
 
-# All of the images from the Kaggle dataset (corrupted images fixed), resized so that their smaller side is 256 pixels long to allow enough wiggle-room for data augmentation while not becoming a bottleneck to read and process.
-echo "Download WikiArt preprocessed data..."
+
+<<'COMMENT'
+# All of the images from the Kaggle dataset resized so that their smaller side is 256 pixels long (ratio not preserved) to allow enough wiggle-room for data augmentation while not becoming a bottleneck to read and process.
+
+echo "Download WikiArt resized data..."
 wget -O ./WikiArt.tgz https://github.com/somewacko/painter-by-numbers/releases/download/data-v1.0/train.tgz
 tar -xzvf ./WikiArt.tgz
 mv train style
 rm -rf ./WikiArt.tgz
+COMMENT
 
-echo "Download WikiArt normal-size data..."
+echo "Download WikiArt data directly from Kaggle ..."
 kaggle competitions download -f train.zip painter-by-numbers
 unzip train.zip
-mv train style_normal
-kaggle competitions download -f replacements_for_corrupted_files.zip painter-by-numbers
+mv train style_kaggle
 rm -rf train.zip
 
+kaggle competitions download -f replacements_for_corrupted_files.zip painter-by-numbers
 unzip replacements_for_corrupted_files.zip
-mv train/* style_normal
+mv -f train/* style_kaggle
 rm -rf train/ test/ __MACOSX/ replacements_for_corrupted_files.zip
+
+<<'COMMENT'
+# We also provide cleaned WikiArt dataset using clean() defined in our preprocess.py on google drive.
+echo "Download WikiArt cleaned data..."
+FILEID="1e3uQ9i-W02VteNICF55V2vbHsXTzFT-K"
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=${FILEID}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O test_1.pdf && rm -rf /tmp/cookies.txt
+COMMENT
+
 
 echo "Download VGG19 pretrained weights..."
 wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
 
-<<<<<<< HEAD
 cd ..
 ## TODO: add pretrained model download link ##
 
-=======
-## Download pretrained normalized vgg19 model ##
-wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
->>>>>>> 4a01fe49c53aa0e51db68626d6dfdca0d4a020a9

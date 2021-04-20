@@ -40,7 +40,7 @@ class ImageDataset:
             image = tf.keras.preprocessing.image.load_img(path)
             image_array = tf.keras.preprocessing.image.img_to_array(image)
             resized_image = tf.image.resize(
-                image_array, [512, 512], method="nearest", preserve_aspect_ratio=False
+                image_array, [512, 512], method="nearest", preserve_aspect_ratio=True
             )
             cropped_image = tf.image.random_crop(
                 resized_image, size=[hp.img_size, hp.img_size, 3]
@@ -83,7 +83,7 @@ def get_image(path):
 
 def clean_images():
     """
-    clean all corrupted images files.
+    clean all corrupted images files. TODO: This operation can be parallelized using joblib.Parallel. But it might require too large memory.
     """
     directory = sys.argv[1]
     paths = os.listdir(directory)
