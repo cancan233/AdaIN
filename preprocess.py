@@ -2,7 +2,7 @@ import os
 import random
 import numpy as np
 import sys
-from skimage.io import imread
+from skimage.io import imread, imsave
 from skimage.transform import resize
 from tqdm import tqdm
 
@@ -41,10 +41,14 @@ class ImageDataset:
             image_array = tf.keras.preprocessing.image.img_to_array(image)
 
             # Cannot use tf.image.resize() because it will yield images whose largest dimension is 512 while the smallest one can be smaller than 256, when preserve_aspect_ratio is True. Use smart_resize() here, which is a little different than what described in the paper.
-            resized_image = tf.keras.preprocessing.image.smart_resize(
-                image_array, [512, 512]
-            )
-            print(resized_image.shape)
+
+            # resized_image = tf.keras.preprocessing.image.smart_resize(
+            #     image_array, [512, 512]
+            # )
+
+            #  If you use the preprocesed data we provided, use following line.
+            resized_image = image_array
+
             cropped_image = tf.image.random_crop(
                 resized_image, size=[hp.img_size, hp.img_size, 3]
             )
@@ -86,9 +90,15 @@ def get_image(path):
 
 def clean_images():
     """
-    clean all corrupted images files. TODO: This operation can be parallelized using joblib.Parallel. But it might require too large memory.
+    clean all corrupted images files.
+
+    You have to make sure that the directory + "_cleaned" exists.
+
+    TODO: This operation can be parallelized using joblib.Parallel. But it might require too large memory.
     """
     directory = sys.argv[1]
+    if directory[-1] == "/":
+        directory = directory[:-1]
     paths = os.listdir(directory)
     num_delete = 0
     for i in tqdm(range(len(paths))):
@@ -107,26 +117,24 @@ def clean_images():
                     " Remove image <%s>\n" % img_path,
                 )
             else:
-                # height, width, _ = image.shape
+                image = imread(img_path)
+                height, width, _ = image.shape
 
-                # if height < width:
-                #     new_height = 512
-                #     new_width = int(width * new_height / height)
-                # else:
-                #     new_width = 512
-                #     new_height = int(height * new_width / width)
-
-                # try:
-                #     resize(image, [new_height, new_width])
+                if height < width:
+                    new_height = 512
+                    new_width = int(width * new_height / height)
+                else:
+                    new_width = 512
+                    new_height = int(height * new_width / width)
                 try:
-                    resized_image = tf.image.resize(
-                        image_array,
-                        [512, 512],
-                        method="nearest",
-                        preserve_aspect_ratio=True,
+                    resized_image = resize(image, [new_height, new_width])
+                    # if not os.path.isdir(directory + "_cleaned"):
+                    #     os.mkdir(directory + "_cleaned")
+                    save_name = (
+                        directory + "_cleaned" + os.sep + os.path.split(img_path)[1]
                     )
-                    # height, weith, _ = resized_image.shape
-                    # if height != 512
+                    imsave(save_name, resized_image)
+
                 except:
                     print("Cant resize this file, will delete it")
                     num_delete += 1

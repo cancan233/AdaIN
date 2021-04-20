@@ -41,10 +41,16 @@ mv -f train/* style_kaggle
 rm -rf train/ test/ __MACOSX/ replacements_for_corrupted_files.zip
 COMMENT
 
+<< 'COMMENT'
+# Below code does not work for such a huge file. 
+# Here is the link for the file https://drive.google.com/file/d/1Y7O3J_htkaFc1FSPIoc8oEWvzD3843ug/view?usp=sharing
+
 echo "Download WikiArt cleaned data..."
-FILEID="1bcp001l3_RMvt-Hfjan_bwwUxFxpF0mD"
-FILENAME="train_cleaned.zip"
+FILEID="1n1s23CdPUy--D_DgRH1i-BAnt75joLqg"
+FILENAME="train_cleaned.tar.gz"
 wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=${FILEID}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${FILENAME} && rm -rf /tmp/cookies.txt
+COMMENT
+
 
 echo "Download VGG19 pretrained weights..."
 wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz

@@ -14,12 +14,17 @@ We also provide cleaned WikiArt dataset using clean() defined in our preprocess.
 
 ## Train
 ``` python
-python run.py --content-dir ./images/content --style-dir ./images/style_kaggle --pretrained-vgg19 ./images/vgg19_normalised.npz
+python run.py --content-dir ./images/content \ 
+              --style-dir ./images/style_kaggle \ 
+              --pretrained-vgg19 ./images/vgg19_normalised.npz
 ```
 
-## Train
+## Test
 ``` python
-python run.py --load-checkpoint ./output/checkpoints/041921-213116/epoch1_batch_4000 --evaluate --content-evaluate ./examples/content/brownspring.jpg --style-evaluate ./examples/style/starry_night.jpg
+python run.py --load-checkpoint ./output/checkpoints/041921-213116/epoch1_batch_4000 \
+              --evaluate \
+              --content-evaluate ./examples/content/brownspring.jpg \
+              --style-evaluate ./examples/style/starry_night.jpg
 ```
 
 ## Some defects

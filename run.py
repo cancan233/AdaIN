@@ -177,8 +177,8 @@ def main():
                         # output_stream=sys.stdout,
                         output_stream="file://{}/loss.log".format(logs_path),
                     )
-                if not ARGS.no_save:
-                    save_name = "epoch_{}".format(epoch)
+                if not ARGS.no_save and batch % 5000 == 0:
+                    save_name = "epoch_{}_batch_{}".format(epoch, batch)
                     model.save_weights(
                         filepath=checkpoint_path + os.sep + save_name,
                         save_format="tf",
