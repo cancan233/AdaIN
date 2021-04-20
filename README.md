@@ -8,7 +8,9 @@ Tested based upon environments below
 * [kaggle-api](https://github.com/Kaggle/kaggle-api)
 
 ## Download data 
-The training content images are [MS-COCO](https://cocodataset.org/#home) and style images are [WikiArt](https://www.kaggle.com/c/painter-by-numbers). You can run `setup.sh` directly to download both images dataset. The total dataset size will take about 40 GB.
+The training content images are [MS-COCO](https://cocodataset.org/#home) and style images are [WikiArt](https://www.kaggle.com/c/painter-by-numbers). Check `setup.sh` for details about the dataset we use.
+
+We also provide cleaned WikiArt dataset using clean() defined in our preprocess.py on google drive. Total number is 78572 while from kaggle it is 79433. 861 images are removed because of dimension mismatch or too large size.
 
 ## Some defects
 * We take the "same" padding in our encoder and decoder model, while in the paper, they use "reflect" padding to avoid border artifacts.

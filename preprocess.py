@@ -39,9 +39,12 @@ class ImageDataset:
         for path in paths:
             image = tf.keras.preprocessing.image.load_img(path)
             image_array = tf.keras.preprocessing.image.img_to_array(image)
-            resized_image = tf.image.resize(
-                image_array, [512, 512], method="nearest", preserve_aspect_ratio=True
+
+            # Cannot use tf.image.resize() because it will yield images whose largest dimension is 512 while the smallest one can be smaller than 256, when preserve_aspect_ratio is True. Use smart_resize() here, which is a little different than what described in the paper.
+            resized_image = tf.keras.preprocessing.image.smart_resize(
+                image_array, [512, 512]
             )
+            print(resized_image.shape)
             cropped_image = tf.image.random_crop(
                 resized_image, size=[hp.img_size, hp.img_size, 3]
             )
@@ -104,17 +107,26 @@ def clean_images():
                     " Remove image <%s>\n" % img_path,
                 )
             else:
-                height, width, _ = image.shape
+                # height, width, _ = image.shape
 
-                if height < width:
-                    new_height = 512
-                    new_width = int(width * new_height / height)
-                else:
-                    new_width = 512
-                    new_height = int(height * new_width / width)
+                # if height < width:
+                #     new_height = 512
+                #     new_width = int(width * new_height / height)
+                # else:
+                #     new_width = 512
+                #     new_height = int(height * new_width / width)
 
+                # try:
+                #     resize(image, [new_height, new_width])
                 try:
-                    resize(image, [new_height, new_width], anti_aliasing=True)
+                    resized_image = tf.image.resize(
+                        image_array,
+                        [512, 512],
+                        method="nearest",
+                        preserve_aspect_ratio=True,
+                    )
+                    # height, weith, _ = resized_image.shape
+                    # if height != 512
                 except:
                     print("Cant resize this file, will delete it")
                     num_delete += 1

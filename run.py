@@ -174,11 +174,11 @@ def main():
                 if batch % 10 == 0:
                     tf.print(
                         "Epoch {}\t Batch {}\t: Loss {}\t".format(epoch, batch, loss),
-                        output_stream=sys.stdout
-                        # output_stream="file://{}/loss.log".format(logs_path),
+                        # output_stream=sys.stdout,
+                        output_stream="file://{}/loss.log".format(logs_path),
                     )
                 if not ARGS.no_save:
-                    save_name = "epoch{}_batch_{}".format(epoch, batch)
+                    save_name = "epoch_{}_batch_{}".format(epoch, batch)
                     if batch % 500 == 0:
                         model.save_weights(
                             filepath=checkpoint_path + os.sep + save_name,

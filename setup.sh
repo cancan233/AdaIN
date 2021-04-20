@@ -19,7 +19,7 @@ rm -rf ./train2014.zip
 
 
 <<'COMMENT'
-# All of the images from the Kaggle dataset resized so that their smaller side is 256 pixels long (ratio not preserved) to allow enough wiggle-room for data augmentation while not becoming a bottleneck to read and process.
+# All of the images from the Kaggle dataset resized so that their smaller side is 256 pixels long to allow enough wiggle-room for data augmentation while not becoming a bottleneck to read and process.
 
 echo "Download WikiArt resized data..."
 wget -O ./WikiArt.tgz https://github.com/somewacko/painter-by-numbers/releases/download/data-v1.0/train.tgz
@@ -28,6 +28,7 @@ mv train style
 rm -rf ./WikiArt.tgz
 COMMENT
 
+<<'COMMENT'
 echo "Download WikiArt data directly from Kaggle ..."
 kaggle competitions download -f train.zip painter-by-numbers
 unzip train.zip
@@ -38,14 +39,12 @@ kaggle competitions download -f replacements_for_corrupted_files.zip painter-by-
 unzip replacements_for_corrupted_files.zip
 mv -f train/* style_kaggle
 rm -rf train/ test/ __MACOSX/ replacements_for_corrupted_files.zip
-
-<<'COMMENT'
-# We also provide cleaned WikiArt dataset using clean() defined in our preprocess.py on google drive.
-echo "Download WikiArt cleaned data..."
-FILEID="1e3uQ9i-W02VteNICF55V2vbHsXTzFT-K"
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=${FILEID}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O test_1.pdf && rm -rf /tmp/cookies.txt
 COMMENT
 
+echo "Download WikiArt cleaned data..."
+FILEID="1bcp001l3_RMvt-Hfjan_bwwUxFxpF0mD"
+FILENAME="train_cleaned.zip"
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=${FILEID}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=${FILEID}" -O ${FILENAME} && rm -rf /tmp/cookies.txt
 
 echo "Download VGG19 pretrained weights..."
 wget https://s3-us-west-2.amazonaws.com/wengaoye/vgg19_normalised.npz
