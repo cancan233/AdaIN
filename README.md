@@ -11,7 +11,7 @@ Required environments
 The `requirements.txt` contains all packages in our virtual environment when implementing this model.
 
 ## Results
-Below we presented several examples created by the AdaIN model implemented. The orginal content image is a picture taken in Brown University Main Green. For more examples, please check `./examples/results` folder.
+Below we presented several examples created by the AdaIN model implemented. The orginal content image is a picture taken in Brown University Main Green. For more examples, please check `./examples/results` folder. For pretrained models, [click here](https://drive.google.com/drive/folders/1ifTga2jPIISksZljsg8HYHo9WvVfbwYW?usp=sharing)
 
 |Styles| Results|
 | ---- | ------ |
@@ -27,16 +27,16 @@ We provide the cleaned MS-COCO and cleaned WikiArt dataset on google drive. [[Cl
 ## Usage
 Use `python run.py --help` to check all available arguments. All hyperparameters are included in `hyperparameters.py`.
 
-## Train
+### Train
 ``` python
 python run.py --content-dir ./images/content_cleaned \ 
               --style-dir ./images/style_kaggle_cleaned \ 
               --pretrained-vgg19 ./images/vgg19_normalised.npz
 ```
 
-## Test
+### Test
 ``` python
-python run.py --load-checkpoint ./output/checkpoints/041921-213116/epoch1_batch_4000 \
+python run.py --load-checkpoint ./output/checkpoints/041921-213116/epoch_1_batch_5000 \
               --evaluate \
               --content-evaluate ./examples/content/brownspring.jpg \
               --style-evaluate ./examples/style/starry_night.jpg
@@ -44,5 +44,5 @@ python run.py --load-checkpoint ./output/checkpoints/041921-213116/epoch1_batch_
 
 ## Reference
 1. Repository from Xun Huang, [AdaIN-style](https://github.com/xunhuang1995/AdaIN-style) implemented in Torch, who is the first author of AdaIN model paper
-2. [AdaIN-style-transfer---Tensorflow-2.0](https://github.com/rasmushr97/AdaIN-style-transfer---Tensorflow-2.0), implemented in Tensorflow 2.0. (Note: The repo resize all images to (256, 256) without preserving the ratio, which is different from the data preparation described in the paper. It would cause wave pattern in the result.)
+2. [AdaIN-style-transfer---Tensorflow-2.0](https://github.com/rasmushr97/AdaIN-style-transfer---Tensorflow-2.0), implemented in Tensorflow 2.0. (Note: The repo resize all images to (256, 256) without preserving the ratio, which is different from the data preparation described in the paper. It would cause checkboard artifacts in the result.)
 3. [Tensorflow-Style-Transfer-with-Adain](https://github.com/JunbinWang/Tensorflow-Style-Transfer-with-Adain), implemented in Tensorflow 1.0 version.
