@@ -59,6 +59,10 @@ def parse_args():
     )
     parser.add_argument("--content-evaluate", help="path the image to transform")
     parser.add_argument("--style-evaluate", help="path to style image")
+    parser.add_argument(
+        "--result-evaluate",
+        help="only the name of the saved output image. It will be stored in ./examples/results. If not specified, the default name will be content name + style name.jpg",
+    )
     return parser.parse_args()
 
 
@@ -87,11 +91,8 @@ def test(model, content_image, style_image, output_name):
     if not os.path.isdir("./examples/results"):
         os.mkdir("./examples/results")
     imsave(
-        "./examples/results/test_{}".format(output_name),
-        img_as_ubyte(
-            deprocess_img(model(content_image, style_image)[-1].numpy())[0] / 255.0
-        ),
-        # deprocess_img(model(content_image, style_image)[-1].numpy())[0],
+        "./examples/results/{}".format(output_name),
+        img_as_ubyte(model(content_image, style_image)[-1].numpy()[0] / 255.0),
     )
 
 
@@ -129,11 +130,14 @@ def main():
     if ARGS.evaluate:
         content_image = get_image(ARGS.content_evaluate)
         style_image = get_image(ARGS.style_evaluate)
-        output_name = (
-            os.path.split(ARGS.content_evaluate)[1][:-4]
-            + "_"
-            + os.path.split(ARGS.style_evaluate)[1]
-        )
+        if ARGS.result_evaluate:
+            output_name = ARGS.result_evaluate
+        else:
+            output_name = (
+                os.path.split(ARGS.content_evaluate)[1][:-4]
+                + "_"
+                + os.path.split(ARGS.style_evaluate)[1]
+            )
         test(model, content_image, style_image, output_name)
 
     else:

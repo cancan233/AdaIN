@@ -207,10 +207,11 @@ class AdaIN_NST(tf.keras.Model):
         enc_style = self.enc(style)
         adain_content = self.adain(enc_content[-1], enc_style[-1])
         output = self.dec(adain_content)
+        output = deprocess_img(output)
         return [enc_style, adain_content, output]
 
     def loss_fn(self, enc_style, adain_content, output):
-        output = deprocess_img(output)
+        # output = deprocess_img(output)
         output = tf.keras.applications.vgg19.preprocess_input(output)
         enc_adain = self.enc(output)
         content_loss = tf.reduce_sum(

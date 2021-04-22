@@ -73,39 +73,39 @@ cd pretrained_models
 
 << 'COMMENT' Uncomment this block to download pretrained model with style_lambda = 10
 
-# Here is the link for the file https://drive.google.com/file/d/1EX76cd8V4ICvFJuvCcxKOK3kXPWW9BHO/view?usp=sharing
+# Here is the link for the file https://drive.google.com/file/d/13Q0k4hKR8d2qxlq4gMC2IKOrKFlFPW0d/view?usp=sharing
 
-FILEID='1EX76cd8V4ICvFJuvCcxKOK3kXPWW9BHO'
+FILEID='13Q0k4hKR8d2qxlq4gMC2IKOrKFlFPW0d'
 
-echo "Download WikiArt cleaned data..."
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1EX76cd8V4ICvFJuvCcxKOK3kXPWW9BHO' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1EX76cd8V4ICvFJuvCcxKOK3kXPWW9BHO" -O pretrained_model_slambda_10.data-00000-of-00001 && rm -rf /tmp/cookies.txt
+echo "Download pretrained model with style_lambda=10..."
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=13Q0k4hKR8d2qxlq4gMC2IKOrKFlFPW0d' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=13Q0k4hKR8d2qxlq4gMC2IKOrKFlFPW0d" -O pretrained_model_slambda_10.data-00000-of-00001 && rm -rf /tmp/cookies.txt
 
 
-# Here is the link for the file https://drive.google.com/file/d/1UOjsfUSESTEgl88U75pOrlVwB9ueLavu/view?usp=sharing
+# Here is the link for the file https://drive.google.com/file/d/1lCwltH3AIsR2UWHtnu1UqlMDcNxiV1yG/view?usp=sharing
 
-FILEID='1UOjsfUSESTEgl88U75pOrlVwB9ueLavu'
+FILEID='1lCwltH3AIsR2UWHtnu1UqlMDcNxiV1yG'
 
-echo "Download WikiArt cleaned data..."
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1UOjsfUSESTEgl88U75pOrlVwB9ueLavu' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1UOjsfUSESTEgl88U75pOrlVwB9ueLavu" -O pretrained_model_slambda_10.index && rm -rf /tmp/cookies.txt
+echo "Download pretrained model index with style_lambda=10..."
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1lCwltH3AIsR2UWHtnu1UqlMDcNxiV1yG' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1lCwltH3AIsR2UWHtnu1UqlMDcNxiV1yG" -O pretrained_model_slambda_10.index && rm -rf /tmp/cookies.txt
 COMMENT
 
 
 << 'COMMENT' Uncomment this block to download pretrained model with style_lambda = 2
 
-# Here is the link for the file https://drive.google.com/file/d/1V805sz0wxl3WJeAZalHik56rjSYbwfKD/view?usp=sharing
+# Here is the link for the file https://drive.google.com/file/d/1YgOb_HFjxr75C__gMLnnc1sqCawQG6JD/view?usp=sharing
 
-FILEID='1EX76cd8V4ICvFJuvCcxKOK3kXPWW9BHO'
+FILEID='1YgOb_HFjxr75C__gMLnnc1sqCawQG6JD'
 
-echo "Download WikiArt cleaned data..."
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1V805sz0wxl3WJeAZalHik56rjSYbwfKD' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1V805sz0wxl3WJeAZalHik56rjSYbwfKD" -O pretrained_model_slambda_2.data-00000-of-00001 && rm -rf /tmp/cookies.txt
+echo "Download pretrained model with style_lambda=2..."
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1YgOb_HFjxr75C__gMLnnc1sqCawQG6JD' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1YgOb_HFjxr75C__gMLnnc1sqCawQG6JD" -O pretrained_model_slambda_2.data-00000-of-00001 && rm -rf /tmp/cookies.txt
 
 
-# Here is the link for the file https://drive.google.com/file/d/1MoB3YoTOD-fCVs7fj05tmBfVyB1H1ALb/view?usp=sharing
+# Here is the link for the file https://drive.google.com/file/d/1oH54f_gjhycV-s9OotkuDQIb06Q2i6Me/view?usp=sharing
 
-FILEID='1MoB3YoTOD-fCVs7fj05tmBfVyB1H1ALb'
+FILEID='1oH54f_gjhycV-s9OotkuDQIb06Q2i6Me'
 
-echo "Download WikiArt cleaned data..."
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MoB3YoTOD-fCVs7fj05tmBfVyB1H1ALb' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1MoB3YoTOD-fCVs7fj05tmBfVyB1H1ALb" -O pretrained_model_slambda_2.index && rm -rf /tmp/cookies.txt
+echo "Download pretrained model index with style_lambda=2..."
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1oH54f_gjhycV-s9OotkuDQIb06Q2i6Me' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1oH54f_gjhycV-s9OotkuDQIb06Q2i6Me" -O pretrained_model_slambda_2.index && rm -rf /tmp/cookies.txt
 COMMENT
 
 cd ..
